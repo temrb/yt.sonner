@@ -16,8 +16,11 @@ export default function Home() {
 	const [people, setPeople] = useState<Person[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [clear, setClear] = useState(false);
+	const [error, setError] = useState(false);
+	console.log('🚀 ~ Home ~ error:', error);
 
 	const testFetch = async () => {
+		setError(false);
 		try {
 			setLoading(true);
 			const res = await fetch('/api/test');
@@ -27,7 +30,8 @@ export default function Home() {
 			setPeople((prevPeople) => [...prevPeople, person]);
 		} catch (error) {
 			setLoading(false);
-			console.error('Error fetching data:', error);
+			toast.error('This is a test error.');
+			setError(true);
 		} finally {
 			setLoading(false);
 		}
@@ -35,10 +39,20 @@ export default function Home() {
 
 	return (
 		<main className='flex min-h-screen flex-col items-center justify-center space-y-6 p-4'>
-			<div className='mx-auto flex h-72 w-full max-w-xl flex-col overflow-x-hidden overflow-y-scroll rounded-lg border-2 border-border p-2'>
+			<div
+				className={`mx-auto flex h-72 w-full max-w-xl flex-col overflow-x-hidden overflow-y-scroll rounded-lg border-2 border-border p-2 ${
+					error && 'border-red-500'
+				}`}
+			>
 				{people.length === 0 && loading === false ? (
 					<p className='text-center text-base'>
-						No people added yet.
+						{error ? (
+							<span className='font-semibold text-red-700'>
+								Test error try again
+							</span>
+						) : (
+							'No people added yet.'
+						)}
 					</p>
 				) : (
 					<Person people={people} />
@@ -73,6 +87,7 @@ export default function Home() {
 						setTimeout(() => {
 							setClear(false);
 						}, 800);
+						setError(false);
 					}}
 					disabled={clear || people.length === 0}
 					variant={'ghost'}
